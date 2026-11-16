@@ -123,12 +123,26 @@ The errors make visual sense: almost all of them are between upper-body garments
 
 ![Misclassified test images](images/errores_test.png)
 
+### 5. Work in progress: three hidden layers, dropout 0.3 and early stopping *(provisional)*
+
+After the search I started testing a deeper network with more dropout, trained with early stopping (up to 100 epochs, patience 5, best weights restored) instead of a fixed 20 epochs ([notebook 03](notebooks/03_pruebas_3capas_early_stopping.ipynb)). It is published as run and is still being fixed:
+
+| Run | Network | Best epoch | Valid accuracy | Test accuracy |
+|---|---|---|---|---|
+| SGD, lr 0.01 | 512-256-128 | 45 | 89.0 % | — |
+| Adam, lr 0.0003 (chosen) | 128-64-128 | 19 | 88.5 %\* | 87.8 % |
+
+\* Last epoch (5 after the best one).
+
+Known issues: from the SGD vs Adam comparison on, a bug in the experiment function built a 784-128-64-128-10 network instead of the intended 784-512-256-128-10, and the tables read the last epoch instead of the best one. Early conclusion so far: early stopping lets SGD with lr 0.01 catch up with Adam (about 89 % on validation across three seeds for both), but it needs 70–80 epochs against Adam's 30–40. The next version will fix the bug and rerun.
+
 ## Repository structure
 
 ```
 ├── notebooks/
 │   ├── 01_clasificador_base.ipynb        # baseline: SGD vs Adam, test, error analysis, one-at-a-time experiments
-│   └── 02_grilla_hiperparametros.ipynb   # staged hyperparameter search and final test
+│   ├── 02_grilla_hiperparametros.ipynb   # staged hyperparameter search and final test
+│   └── 03_pruebas_3capas_early_stopping.ipynb  # work in progress: 3 hidden layers + early stopping
 ├── src/
 │   ├── model.py                          # FashionMLP with any number of hidden layers
 │   ├── train.py                          # train one configuration, evaluate on test, save figures

@@ -123,12 +123,26 @@ Los errores tienen sentido visual: casi todos son entre prendas de la parte de a
 
 ![Imágenes de test mal clasificadas](images/errores_test.png)
 
+### 5. En progreso: tres capas ocultas, dropout 0,3 y early stopping *(provisorio)*
+
+Después de la búsqueda empecé a probar una red más profunda y con más dropout, entrenada con early stopping (hasta 100 épocas, paciencia 5, volviendo a los pesos de la mejor época) en lugar de 20 épocas fijas ([notebook 03](notebooks/03_pruebas_3capas_early_stopping.ipynb)). Está publicada tal como se ejecutó y todavía la estoy corrigiendo:
+
+| Corrida | Red | Mejor época | Valid accuracy | Test accuracy |
+|---|---|---|---|---|
+| SGD, lr 0,01 | 512-256-128 | 45 | 89,0 % | — |
+| Adam, lr 0,0003 (elegido) | 128-64-128 | 19 | 88,5 %\* | 87,8 % |
+
+\* Última época (5 después de la mejor).
+
+Problemas conocidos: desde la comparación SGD contra Adam en adelante, un error en la función de experimentos armó la red 784-128-64-128-10 en lugar de la buscada 784-512-256-128-10, y las tablas leen la última época en vez de la mejor. Conclusión preliminar: con early stopping, SGD con lr 0,01 alcanza a Adam (alrededor de 89 % en validation con tres semillas, los dos), pero necesita 70–80 épocas contra 30–40 de Adam. La próxima versión corrige el error y vuelve a correr todo.
+
 ## Estructura del repositorio
 
 ```
 ├── notebooks/
 │   ├── 01_clasificador_base.ipynb        # base: SGD vs Adam, test, análisis de errores, experimentos de a uno
-│   └── 02_grilla_hiperparametros.ipynb   # búsqueda de hiperparámetros por etapas y test final
+│   ├── 02_grilla_hiperparametros.ipynb   # búsqueda de hiperparámetros por etapas y test final
+│   └── 03_pruebas_3capas_early_stopping.ipynb  # en progreso: 3 capas ocultas + early stopping
 ├── src/
 │   ├── model.py                          # FashionMLP con cualquier cantidad de capas ocultas
 │   ├── train.py                          # entrena una configuración, evalúa en test y guarda figuras
